@@ -3,6 +3,9 @@ from queue import Queue
 
 
 class ChessBoard:
+    """
+    This chess board only has one knight!
+    """
     cells = dict()
     knight_move_options = ((2, -1), (2, 1), (-2, 1), (1, 2), (1, -2), (-1, 2), (-1, -2),
                            (-2, -1))
@@ -28,34 +31,43 @@ class ChessBoard:
 
     def possible_knight_moves(self, cell: tuple) -> list:
         return list(
-            filter(lambda i: i is not None, (self.visit_cell(src_cell=cell, dest_cell=self.sum_cells(m, cell)) for m in
-                                             self.knight_move_options)))
+            filter(lambda i: i is not None, (
+                self.visit_cell(src_cell=cell, dest_cell=self.sum_cells(m, cell)) for m in self.knight_move_options)))
 
     def get_level(self, cell):
         return self.cells[cell]
 
 
-def game():
-    # initiation
+def get_initial_values_from_user() -> tuple:
     default_dimension = os.getenv('DIMENSION')
     chess_board = ChessBoard(int(input(
-        f'Default Dimension is {default_dimension}. Please Enter your own dimension or press enter: ') or default_dimension))
-    source = tuple(map(int, input('Where is the Knight? (Enter coordinates space separated. Like 1 2.) --> ').split()))
+        f'Default Dimension is {default_dimension}. '
+        f'Please Enter your own dimension or press enter: ') or default_dimension))
+    source = tuple(map(int, input('Where is the Knight? '
+                                  '(Enter coordinates space separated. Like 1 2.) --> ').split()))
     destination = tuple(
-        map(int, input('Where is the Knight going? (Enter coordinates space separated. Like 10 6.) --> ').split()))
+        map(int, input('Where is the Knight going? '
+                       '(Enter coordinates space separated. Like 10 6.) --> ').split()))
+
+    return source, destination, chess_board
+
+
+def game() -> str:
+    source, destination, chess_board = get_initial_values_from_user()
 
     chess_board.visit_cell(None, source)
     queue = Queue()
     queue.put(source)
+
     while queue.qsize():
         cell = queue.get()
-        possible_moves = chess_board.possible_knight_moves(cell)
-        for move in possible_moves:
-            if move == destination:
-                return f'Destination reached with {chess_board.get_level(move)} moves'
+        next_moves = chess_board.possible_knight_moves(cell)
+        for n in next_moves:
+            if n == destination:
+                return f'Destination reached with {chess_board.get_level(n)} moves'
         else:
-            for c in possible_moves:
-                queue.put(c)
+            for n in next_moves:
+                queue.put(n)
     return 'Not Possible!'
 
 
